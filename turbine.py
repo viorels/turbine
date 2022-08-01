@@ -2,6 +2,7 @@
 
 import vlc
 import time
+import datetime
 import os
 
 # physical pin numbering https://pinout.xyz/#
@@ -16,23 +17,16 @@ VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 
 last_button = 0
+last_time = None
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 
 vlc_instance = vlc.Instance()
 MEDIAS = [vlc_instance.media_new(os.path.join(script_path, video)) for video in VIDEOS]
 player = vlc_instance.media_player_new()
-player.set_fullscreen(True)
-
-#player = vlc_instance.media_list_player_new()
-#media_list = vlc_instance.media_list_new()
-#for m in MEDIAS:
-#    media_list.add_media(m)
-#player.set_media_list(media_list)
-#player.play()
+#player.set_fullscreen(True)
 
 def video(media):
-#    media = vlc_instance.media_new(source)
     player.set_media(media)
     player.play()
 
@@ -59,13 +53,18 @@ def button3_callback(channel):
     action(3)
 
 def action(button):
-    global last_button, player
+    global last_button, last_time
     if button == last_button:
         return
-    last_button = button
+    print("OPEN VALVE", button)
+    if last_button == 0:
+        print("START PUMP")
+    else:
+        print("CLOSE VALVE", last_button)
 
-#    if player:
-#        player.stop()
+    last_button = button
+    last_time = datetime.datetime.now()
+
     video(MEDIAS[button-1])
 
 
@@ -79,6 +78,13 @@ GPIO.add_event_detect(BUTTON1_PIN,GPIO.RISING,callback=button1_callback, bouncet
 GPIO.add_event_detect(BUTTON2_PIN,GPIO.RISING,callback=button2_callback, bouncetime=500)
 GPIO.add_event_detect(BUTTON3_PIN,GPIO.RISING,callback=button3_callback, bouncetime=500)
 
-message = input("Press enter to quit\n\n") # Run until someone presses enter
+while True:
+    if last_time is not None:
+        duration = datetime.datetime.now() - last_time
+        if duration > datetime.timedelta(seconds=BUTTON_TIMEOUT):
+            print("STOP EVERYTHING")
+            last_button = 0
+            last_time = None
+    time.sleep(0.5)
 
 GPIO.cleanup() # Clean up
