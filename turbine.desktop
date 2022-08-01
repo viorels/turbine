@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Turbine
+Exec=xterm -hold -e '/home/modulab/turbine/turbine.sh'

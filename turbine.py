@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-#import subprocess
 import vlc
+import time
+import os
 
 # physical pin numbering https://pinout.xyz/#
 BUTTON1_PIN = 11
@@ -15,10 +16,11 @@ VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 
 last_button = 0
-last_time = 0
+
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 vlc_instance = vlc.Instance()
-MEDIAS = [vlc_instance.media_new(video) for video in VIDEOS] 
+MEDIAS = [vlc_instance.media_new(os.path.join(script_path, video)) for video in VIDEOS]
 player = vlc_instance.media_player_new()
 player.set_fullscreen(True)
 
@@ -64,7 +66,6 @@ def action(button):
 
 #    if player:
 #        player.stop()
-    #player = subprocess.call(['/usr/bin/cvlc', VIDEOS[button-1], 'vlc://quit'])
     video(MEDIAS[button-1])
 
 
