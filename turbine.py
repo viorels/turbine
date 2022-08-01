@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-import subprocess
+#import subprocess
+import vlc
 
 # physical pin numbering https://pinout.xyz/#
 BUTTON1_PIN = 11
@@ -15,7 +16,33 @@ import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 
 last_button = 0
 last_time = 0
-player = None
+
+vlc_instance = vlc.Instance()
+MEDIAS = [vlc_instance.media_new(video) for video in VIDEOS] 
+player = vlc_instance.media_player_new()
+player.set_fullscreen(True)
+
+#player = vlc_instance.media_list_player_new()
+#media_list = vlc_instance.media_list_new()
+#for m in MEDIAS:
+#    media_list.add_media(m)
+#player.set_media_list(media_list)
+#player.play()
+
+def video(media):
+#    media = vlc_instance.media_new(source)
+    player.set_media(media)
+    player.play()
+
+    # wait time
+    time.sleep(0.5)
+
+    # getting the duration of the video
+    duration = player.get_length()
+
+    # printing the duration of the video
+    print("Duration : " + str(duration))
+
 
 def button1_callback(channel):
     print("Button1 was pushed!")
@@ -35,10 +62,10 @@ def action(button):
         return
     last_button = button
 
-    if player:
-        player.terminate()
-        player = None
-    player = subprocess.call(['/usr/bin/cvlc', VIDEOS[button-1], 'vlc://quit'])
+#    if player:
+#        player.stop()
+    #player = subprocess.call(['/usr/bin/cvlc', VIDEOS[button-1], 'vlc://quit'])
+    video(MEDIAS[button-1])
 
 
 GPIO.setwarnings(False) # Ignore warning for now
