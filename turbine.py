@@ -1,10 +1,5 @@
 #!/usr/bin/python3
 
-import vlc
-import time
-import datetime
-import os
-
 # GPIO pin numbering https://pinout.xyz/#
 BUTTON1_PIN = 17
 BUTTON2_PIN = 27
@@ -20,6 +15,11 @@ BUTTON_TIMEOUT = 20
 VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 
 ########################################
+
+import vlc
+import time
+import datetime
+import os
 
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 GPIO.setwarnings(False) # Ignore warning for now
