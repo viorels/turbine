@@ -18,18 +18,21 @@ VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 
 import vlc
 import time
-import datetime
+from datetime import datetime
 import os
 
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 GPIO.setwarnings(False) # Ignore warning for now
 GPIO.setmode(GPIO.BCM) # Use Broadcom pin numbering
 
+BUTTONS = (BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN)
+
 GPIO.setup([PUMP_PIN, VALVE1_PIN, VALVE2_PIN, VALVE3_PIN], GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup([BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 last_button = 0
 last_time = None
+idle_since = datetime.now()
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -50,11 +53,11 @@ def activate_valve(new, old):
     # TODO: hardware button to disable pump and valves
     print("OPEN VALVE", new)
     set_valve(new, True)
+    time.sleep(0.5)
     if not old:
         print("START PUMP")
         set_pump(True)
     else:
-        time.sleep(0.5)
         print("CLOSE VALVE", last_button)
         set_valve(last_button, False)
 
@@ -79,38 +82,31 @@ def video(media):
     print("Duration : " + str(duration))
 
 
-def button1_callback(channel):
-    print("Button1 was pushed!")
-    action(1)
-
-def button2_callback(channel):
-    print("Button2 was pushed!")
-    action(2)
-
-def button3_callback(channel):
-    print("Button3 was pushed!")
-    action(3)
-
 def action(button):
     global last_button, last_time
+
     if button == last_button:
         return
+
+    print(f"Button{button} was pushed!")
+    #video(MEDIAS[button-1])
     activate_valve(button, last_button)
 
     last_button = button
-    last_time = datetime.datetime.now()
+    last_time = datetime.now()
 
-    video(MEDIAS[button-1])
+def button_callback(channel):
+    button = BUTTONS.index(channel) + 1
+    action(button)
 
-GPIO.add_event_detect(BUTTON1_PIN,GPIO.RISING,callback=button1_callback, bouncetime=500)
-GPIO.add_event_detect(BUTTON2_PIN,GPIO.RISING,callback=button2_callback, bouncetime=500)
-GPIO.add_event_detect(BUTTON3_PIN,GPIO.RISING,callback=button3_callback, bouncetime=500)
+for button in BUTTONS:
+    GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
 
 deactivate_all()
 
 while True:
     if last_time is not None:
-        duration = datetime.datetime.now() - last_time
+        duration = datetime.now() - last_time
         if duration.total_seconds() > BUTTON_TIMEOUT:
             deactivate_all()
             last_button = 0
