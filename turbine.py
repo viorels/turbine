@@ -25,10 +25,10 @@ import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 GPIO.setwarnings(False) # Ignore warning for now
 GPIO.setmode(GPIO.BCM) # Use Broadcom pin numbering
 
-GPIO.setup(PUMP_PIN, GPIO.OUT)
-GPIO.setup(VALVE1_PIN, GPIO.OUT)
-GPIO.setup(VALVE2_PIN, GPIO.OUT)
-GPIO.setup(VALVE3_PIN, GPIO.OUT)
+GPIO.setup(PUMP_PIN, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(VALVE1_PIN, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(VALVE2_PIN, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(VALVE3_PIN, GPIO.OUT, initial=GPIO.HIGH)
 
 GPIO.setup(BUTTON1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BUTTON2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
