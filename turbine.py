@@ -104,13 +104,15 @@ for button in BUTTONS:
 
 deactivate_all()
 
-while True:
-    if last_time is not None:
-        duration = datetime.now() - last_time
-        if duration.total_seconds() > BUTTON_TIMEOUT:
-            deactivate_all()
-            last_button = 0
-            last_time = None
-    time.sleep(0.5)
+try:
+    while True:
+        if last_time is not None:
+            duration = datetime.now() - last_time
+            if duration.total_seconds() > BUTTON_TIMEOUT:
+                deactivate_all()
+                last_button = 0
+                last_time = None
+        time.sleep(0.5)
+except KeyboardInterrupt:
+    GPIO.cleanup() # Clean up
 
-GPIO.cleanup() # Clean up
