@@ -39,7 +39,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 vlc_instance = vlc.Instance()
 MEDIAS = [vlc_instance.media_new(os.path.join(script_path, video)) for video in VIDEOS]
 player = vlc_instance.media_player_new()
-#player.set_fullscreen(True)
+player.set_fullscreen(True)
 
 def set_pump(active):
     GPIO.output(PUMP_PIN, not active)   # relay has reversed logic
@@ -89,7 +89,7 @@ def action(button):
         return
 
     print(f"Button{button} was pushed!")
-    #video(MEDIAS[button-1])
+    video(MEDIAS[button-1])
     activate_valve(button, last_button)
 
     last_button = button
