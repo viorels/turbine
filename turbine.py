@@ -11,7 +11,7 @@ VALVE2_PIN = 2
 VALVE3_PIN = 3
 
 BUTTON_TIMEOUT = 20
-IDLE_TIMEOUT = 30
+IDLE_TIMEOUT = 60
 
 VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 VIDEO_IDLE = 'video_idle.mp4'
@@ -123,8 +123,7 @@ try:
         time.sleep(0.5)
 
         idle_duration = datetime.now() - idle_since
-        print(idle_mode, idle_duration)
-        if not idle_mode and idle_duration.total_seconds() > IDLE_TIMEOUT or idle_mode and idle_duration.total_seconds() > 20:
+        if idle_duration.total_seconds() > IDLE_TIMEOUT:
             video(MEDIA_IDLE, loop=True)
             idle_mode = True
             idle_since = datetime.now()
