@@ -94,7 +94,7 @@ def action(button):
     if button == last_button:
         return
 
-    print(f"Button{button} was pushed!")
+    print(f"*** Button [{button}] was pushed!")
     video(MEDIAS[button-1])
     activate_valve(button, last_button)
 
@@ -107,20 +107,26 @@ def button_callback(channel):
     button = BUTTONS.index(channel) + 1
     action(button)
 
-for button in BUTTONS:
-    GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
+#for button in BUTTONS:
+#    GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
 
 deactivate_all()
 
 try:
     while True:
+        pushed = [i+1 for i, but_io in enumerate(BUTTONS) if GPIO.input(but_io)]
+        #print(pushed)
+        if (len(pushed) == 1):
+            action(pushed[0])
+
         if last_time is not None:
             duration = datetime.now() - last_time
             if duration.total_seconds() > BUTTON_TIMEOUT:
                 deactivate_all()
                 last_button = 0
                 last_time = None
-        time.sleep(0.5)
+
+        time.sleep(0.05)
 
         idle_duration = datetime.now() - idle_since
         if idle_duration.total_seconds() > IDLE_TIMEOUT:
