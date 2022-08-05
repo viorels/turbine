@@ -11,8 +11,10 @@ VALVE2_PIN = 2
 VALVE3_PIN = 3
 
 BUTTON_TIMEOUT = 20
+IDLE_TIMEOUT = 30
 
 VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
+VIDEO_IDLE = 'video_idle.mp4'
 
 ########################################
 
@@ -32,12 +34,14 @@ GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 last_button = 0
 last_time = None
+idle_mode = False
 idle_since = datetime.now()
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 
 vlc_instance = vlc.Instance()
 MEDIAS = [vlc_instance.media_new(os.path.join(script_path, video)) for video in VIDEOS]
+MEDIA_IDLE = vlc_instance.media_new(os.path.join(script_path, VIDEO_IDLE))
 player = vlc_instance.media_player_new()
 player.set_fullscreen(True)
 
@@ -68,8 +72,10 @@ def deactivate_all():
     for valve in (1, 2, 3):
         set_valve(valve, False)
 
-def video(media):
+def video(media, loop=False):
     player.set_media(media)
+    if loop:
+        vlc_instance.vlm_set_loop("video_idle", True)
     player.play()
 
     # wait time
@@ -83,7 +89,7 @@ def video(media):
 
 
 def action(button):
-    global last_button, last_time
+    global last_button, last_time, idle_mode, idle_since
 
     if button == last_button:
         return
@@ -94,6 +100,8 @@ def action(button):
 
     last_button = button
     last_time = datetime.now()
+    idle_mode = False
+    idle_since = datetime.now()
 
 def button_callback(channel):
     button = BUTTONS.index(channel) + 1
@@ -113,6 +121,15 @@ try:
                 last_button = 0
                 last_time = None
         time.sleep(0.5)
+
+        idle_duration = datetime.now() - idle_since
+        print(idle_mode, idle_duration)
+        if not idle_mode and idle_duration.total_seconds() > IDLE_TIMEOUT or idle_mode and idle_duration.total_seconds() > 20:
+            video(MEDIA_IDLE, loop=True)
+            idle_mode = True
+            idle_since = datetime.now()
+
 except KeyboardInterrupt:
+    deactivate_all()
     GPIO.cleanup() # Clean up
 
