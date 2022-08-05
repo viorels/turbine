@@ -11,7 +11,7 @@ VALVE2_PIN = 2
 VALVE3_PIN = 3
 
 BUTTON_TIMEOUT = 20
-IDLE_TIMEOUT = 30
+IDLE_TIMEOUT = 60
 
 VIDEOS = ['video1_francisc.mp4', 'video2_pelton.mp4', 'video3_kaplan.mp4']
 VIDEO_IDLE = 'video_idle.mp4'
@@ -74,8 +74,10 @@ def deactivate_all():
 
 def video(media, loop=False):
     player.set_media(media)
-    if loop:
-        vlc_instance.vlm_set_loop("video_idle", True)
+    #if loop:
+        #import ipdb; ipdb.set_trace()
+        #vlc_instance.vlm_set_loop("video_idle", True)
+        #vlc_instance.vlm_set_loop("file:///home/modulab/turbine/video_idle.mp4", True)
     player.play()
 
     # wait time
@@ -124,7 +126,8 @@ try:
 
         idle_duration = datetime.now() - idle_since
         #print(idle_mode, idle_duration)
-        if not idle_mode and idle_duration.total_seconds() > IDLE_TIMEOUT or idle_mode and idle_duration.total_seconds() > 19.5:
+        #if not idle_mode and idle_duration.total_seconds() > IDLE_TIMEOUT or idle_mode and idle_duration.total_seconds() > 19.5:
+        if idle_duration.total_seconds() > IDLE_TIMEOUT:
             video(MEDIA_IDLE, loop=True)
             idle_mode = True
             idle_since = datetime.now()
